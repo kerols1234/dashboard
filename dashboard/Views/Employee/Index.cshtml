@@ -1,0 +1,44 @@
+﻿@model Employee
+
+<div class="row" style="width:100%">
+
+
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header row bg-white m-0">
+                <div class="col-6">
+                    <h4 class="text-info">Employee</h4>
+                </div>
+                <div class="col-3 offset-3">
+                    <a asp-action="Upsert" asp-controller="Employee" class="btn btn-info form-control text-white">
+                        Create
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table" id="DT_load">
+                    <thead>
+                        <tr>
+                            <th scope="col">code</th>
+                            <th scope="col">Job Title</th>
+                            <th scope="col">Departement</th>
+                            <th scope="col">Arabic Name</th>
+                            <th scope="col">English Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Insurance</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="~/js/employee.js" asp-append-version="true"></script>
+}

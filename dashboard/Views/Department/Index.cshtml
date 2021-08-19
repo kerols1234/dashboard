@@ -1,0 +1,54 @@
+﻿@model Department
+
+<div class="row" style="width:100%">
+    <form class="col-12 pb-4" asp-action="Index" method="post">
+        <div class="card">
+            <div class="card-body">
+                @if (Model.Id != 0)
+                {
+                    <input asp-for="Id" hidden class="form-control" type="text">
+                }
+                <label asp-for="Name">Department Name</label>
+                <input asp-for="Name" class="form-control" type="text" value="@Model.Name">
+                <span asp-validation-for="Name" class="text-danger field-validation-valid"></span>
+            </div>
+            <div class="card-footer bg-white">
+                @if (Model.Id == 0)
+                {
+                    <button type="submit" class="btn btn-outline-info">Create</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-outline-info">Update</button>
+                    <a asp-action="Index" class="btn btn-outline-warning">Back</a>
+                }
+            </div>
+        </div>
+    </form>
+
+
+    <div class="col-12">
+        <div class="card">
+            <h5 class="card-header bg-white">Departments</h5>
+            <div class="card-body">
+                <table class="table" id="DT_load">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Departement</th>
+                            <th scope="col"></th>
+
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="~/js/department.js" asp-append-version="true"></script>
+}

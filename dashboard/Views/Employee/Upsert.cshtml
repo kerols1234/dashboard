@@ -1,0 +1,58 @@
+﻿@model dashboard.Models.ViewModels.EmployeeVM
+<div class="col-12">
+    <div class="card">
+        <h1 class="text-info card-header bg-white">Create a new account</h1>
+        <div class="card-body">
+            <form asp-controller="Employee" asp-action="Upsert" method="post" role="form">
+                @if (Model.Employee.Id != 0)
+                {
+                    <input asp-for="Employee.Id" class="form-control" hidden />
+                }
+                <div class="row">
+                    <div class="form-group col-6">
+                        <label asp-for="Employee.Code"></label>
+                        <input asp-for="Employee.Code" class="form-control" />
+                        <span asp-validation-for="Employee.Code" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="Employee.Email"></label>
+                        <input asp-for="Employee.Email" class="form-control" />
+                        <span asp-validation-for="Employee.Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="Employee.ArabicName"></label>
+                        <input asp-for="Employee.ArabicName" class="form-control" />
+                        <span asp-validation-for="Employee.ArabicName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="Employee.EnglishName"></label>
+                        <input asp-for="Employee.EnglishName" class="form-control" />
+                        <span asp-validation-for="Employee.EnglishName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="Employee.DepartmentId"></label>
+                        <select asp-for="Employee.DepartmentId" asp-items="@Model.EmployeeSelectList" class="form-control">
+                            <option disabled selected>Not Employee</option>
+                        </select>
+                        <span asp-validation-for="Employee.DepartmentId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="Employee.JobTitle"></label>
+                        <input asp-for="Employee.JobTitle" class="form-control" />
+                        <span asp-validation-for="Employee.JobTitle" class="text-danger"></span>
+                    </div>
+                    <div class="form-check col-2">
+                        <input asp-for="Employee.Insurance" class="form-check-inline" />
+                        <label asp-for="Employee.Insurance" class="form-check-label"></label>
+                    </div>
+                    <div class="form-group col-2 offset-10">
+                        <button type="submit" class="btn btn-info form-control">Create</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
