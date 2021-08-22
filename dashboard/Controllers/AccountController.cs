@@ -168,7 +168,7 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateById(UpsertVM model)
+        public async Task<IActionResult> UpdateById([FromBody] UpsertVM model)
         {
             var user = new ApplicationUser
             {
@@ -205,7 +205,7 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InsertById(UpsertVM model)
+        public async Task<IActionResult> InsertById([FromBody] UpsertVM model)
         {
             var user = new ApplicationUser
             {

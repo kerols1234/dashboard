@@ -66,7 +66,7 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateById(Department model)
+        public async Task<IActionResult> UpdateById([FromBody] Department model)
         {
             Department department = await _db.departments.FirstOrDefaultAsync(obj => obj.Id == model.Id);
             department.Name = model.Name;
@@ -77,15 +77,13 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InsertById(Department model)
+        public async Task<IActionResult> InsertById([FromBody] Department model)
         {
             var obj = await _db.departments.AddAsync(model);
             _db.SaveChanges();
 
             return Json(new { success = true, message = "insert successfull" });
         }
-
-
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)

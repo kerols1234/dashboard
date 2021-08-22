@@ -83,7 +83,7 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateById(Employee model)
+        public IActionResult UpdateById([FromBody] Employee model)
         {
             _db.employees.Update(model);
             _db.SaveChanges();
@@ -91,7 +91,7 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
-        public IActionResult InsertById(Employee model)
+        public IActionResult InsertById([FromBody] Employee model)
         {
             _db.employees.Add(model);
             _db.SaveChanges();
