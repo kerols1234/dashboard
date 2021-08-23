@@ -14,10 +14,13 @@ namespace dashboard.Models
         [Required]
         public int Code { get; set; }
         [Required]
+        [Display(Name = "English Name")]
         public string EnglishName { set; get; }
         [Required]
+        [Display(Name = "Arabic Name")]
         public string ArabicName { set; get; }
         [Required]
+        [Display(Name = "Job Title")]
         public string JobTitle { set; get; }
         [ForeignKey("Department")]
         [Display(Name = "Department")]

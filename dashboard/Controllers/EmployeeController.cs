@@ -22,7 +22,16 @@ namespace dashboard.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            EmployeeVM employeeVM = new EmployeeVM()
+            {
+                Employee = new Employee(),
+                EmployeeSelectList = _db.departments.Select(i => new SelectListItem
+                {
+                    Text = i.Name.Trim(),
+                    Value = i.Name.Trim(),
+                }),
+            };
+            return View(employeeVM);
         }
 
         [HttpGet]

@@ -11,11 +11,8 @@ function loadDataTable() {
             "type": "GET",
             "datatype": "json"
         },
-        "paging": false,
-        "info": false,
-        "lengthChange": false,
-        searching: false,
         ordering: false,
+        "dom": "tr",
         "columns": [
             { "data": "code"},
             { "data": "jobTitle"},
@@ -43,7 +40,20 @@ function loadDataTable() {
         "language": {
             "emptyTable": "no data found"
         },
-        "width": "100%"
+        "width": "100%",
+        initComplete: function () {
+            // Apply the search
+            this.api().columns().every(function () {
+                var that = this;
+                $('#' + $(this.footer()).text()).on('keyup change clear', function () {
+                    if (that.search() !== this.value.trim()) {
+                        that
+                            .search(this.value.trim())
+                            .draw();
+                    }
+                });
+            });
+        },
     });
 }
 
