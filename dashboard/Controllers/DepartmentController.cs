@@ -51,7 +51,6 @@ namespace dashboard.Controllers
             return View(model);
         }
 
-
         #region API Calls
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -62,27 +61,41 @@ namespace dashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
-            return Json(new { data = await _db.departments.FirstOrDefaultAsync(obj => obj.Id == id) });
+            if(ModelState.IsValid)
+            {
+                return Json(new { data = await _db.departments.FirstOrDefaultAsync(obj => obj.Id == id) });
+            }
+            return Json(new { success = false, message = "Error while get data" });
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateById([FromBody] Department model)
+        public async Task<IActionResult> Update([FromBody] Department model)
         {
-            Department department = await _db.departments.FirstOrDefaultAsync(obj => obj.Id == model.Id);
-            department.Name = model.Name;
+            if(ModelState.IsValid)
+            {
+                Department department = await _db.departments.FirstOrDefaultAsync(obj => obj.Id == model.Id);
+                if(department == null)
+                {
+                    return Json(new { success = false, message = "Error while updating" });
+                }
+                department.Name = model.Name;
 
-            _db.SaveChanges();
-            return Json(new { success = true, message = "update successfull" });
-
+                _db.SaveChanges();
+                return Json(new { success = true, message = "update successfull" });
+            }
+            return Json(new { success = false, message = "Error while updating" });
         }
 
         [HttpPost]
-        public async Task<IActionResult> InsertById([FromBody] Department model)
+        public async Task<IActionResult> Insert([FromBody] Department model)
         {
-            var obj = await _db.departments.AddAsync(model);
-            _db.SaveChanges();
-
-            return Json(new { success = true, message = "insert successfull" });
+            if(ModelState.IsValid && model.Id == 0)
+            {
+                var obj = await _db.departments.AddAsync(model);
+                _db.SaveChanges();
+                return Json(new { success = true, message = "insert successfull" });
+            }
+            return Json(new { success = false, message = "Error while adding" });
         }
 
         [HttpDelete]

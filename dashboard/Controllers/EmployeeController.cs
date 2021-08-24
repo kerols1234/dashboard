@@ -88,26 +88,52 @@ namespace dashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
-            return Json(new { data = await _db.employees.Include(obj => obj.Department).FirstOrDefaultAsync(obj => obj.Id == id) });
+            if (ModelState.IsValid)
+            {
+                return Json(new { data = await _db.employees.Include(obj => obj.Department).FirstOrDefaultAsync(obj => obj.Id == id) });
+            }
+            return Json(new { success = false, message = "Error while get data" });
+        }
+
+        [HttpPut]
+        public IActionResult Update([FromBody] Employee model)
+        {
+            if (ModelState.IsValid)
+            {
+                var employee = _db.employees.FirstOrDefault(obj => obj.Id == model.Id);
+                
+                if(employee == null)
+                {
+                    return Json(new { success = false, message = "Error while updating" });
+                }
+
+                employee.Insurance = model.Insurance;
+                employee.JobTitle = model.JobTitle;
+                employee.EnglishName = model.EnglishName;
+                employee.Email = model.Email;
+                employee.Code = model.Code;
+                employee.DepartmentId = model.DepartmentId;
+                employee.Department = model.Department;
+                employee.ArabicName = model.ArabicName;
+
+                _db.SaveChanges();
+
+                return Json(new { success = true, message = "update successfull" });
+            }
+            return Json(new { success = false, message = "Error while updating" });
         }
 
         [HttpPost]
-        public IActionResult UpdateById([FromBody] Employee model)
+        public IActionResult Insert([FromBody] Employee model)
         {
-            _db.employees.Update(model);
-            _db.SaveChanges();
-            return Json(new { success = true, message = "update successfull" });
+            if (ModelState.IsValid && model.Id == 0)
+            {
+                _db.employees.Add(model);
+                _db.SaveChanges();
+                return Json(new { success = true, message = "insert successfull" });
+            }
+            return Json(new { success = false, message = "Error while adding" });
         }
-
-        [HttpPost]
-        public IActionResult InsertById([FromBody] Employee model)
-        {
-            _db.employees.Add(model);
-            _db.SaveChanges();
-            return Json(new { success = true, message = "insert successfull" });
-        }
-
-
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)

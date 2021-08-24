@@ -164,11 +164,15 @@ namespace dashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetById(string id)
         {
-            return Json(new { data = await _db.applicationUsers.FirstOrDefaultAsync(obj => obj.Id == id) });
+            if (ModelState.IsValid && id != null)
+            {
+                return Json(new { data = await _db.applicationUsers.FirstOrDefaultAsync(obj => obj.Id == id) });
+            }
+            return Json(new { success = false, message = "Error while get data" });
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateById([FromBody] UpsertVM model)
+        public async Task<IActionResult> Update([FromBody] UpsertVM model)
         {
             var user = new ApplicationUser
             {
@@ -205,25 +209,28 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InsertById([FromBody] UpsertVM model)
+        public async Task<IActionResult> Insert([FromBody] UpsertVM model)
         {
-            var user = new ApplicationUser
+            if (ModelState.IsValid && (model.Id == "" || model.Id == null))
             {
-                UserName = model.Name,
-                Email = model.Email,
-                EmployeeName = model.EmployeeName,
-                PhoneNumber = model.PhoneNumber,
-            };
+                var user = new ApplicationUser
+                {
+                    UserName = model.Name,
+                    Email = model.Email,
+                    EmployeeName = model.EmployeeName,
+                    PhoneNumber = model.PhoneNumber,
+                };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+                var result = await _userManager.CreateAsync(user, model.Password);
 
-            if (result.Succeeded)
-            {
-                return Json(new { success = true, message = "insert successfull" });
+                if (result.Succeeded)
+                {
+                    return Json(new { success = true, message = "insert successfull" });
+                }
             }
+
             return Json(new { success = false, message = "Error while adding" });
         }
-
 
         [HttpDelete]
         public async Task<IActionResult> Delete(string id)
