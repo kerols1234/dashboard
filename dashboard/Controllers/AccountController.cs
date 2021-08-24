@@ -123,7 +123,7 @@ namespace dashboard.Controllers
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
                 {
-                    return Redirect(nameof(HomeController.Index));
+                    return RedirectToAction(nameof(HomeController.Index),"Home");
                 }
                 else
                 {
@@ -135,12 +135,11 @@ namespace dashboard.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         public async Task<IActionResult> LogOff()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction(nameof(AccountController.Login), nameof(AccountController));
+            return RedirectToAction(nameof(AccountController.Login), "Account");
         }
 
         private void AddErrors(IdentityResult result)

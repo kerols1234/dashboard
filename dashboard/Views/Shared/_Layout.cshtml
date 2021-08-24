@@ -36,18 +36,26 @@
 
         <header>
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light fixed-top bg-info border-bottom box-shadow">
-                <div class="container">
+                <div class="container-fluid">
                     <a class="navbar-brand text-white" asp-area="" asp-controller="Home" asp-action="Index">dashboard</a>
-                    <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    <div class="dropdown">
+                        <a class="login-icon text-white" id="dropdownMenu" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu">
+                            <li><a class="dropdown-item item">Action</a></li>
+                            <li><a class="dropdown-item item" asp-action="LogOff" asp-controller="Account">Logout</a></li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
         </header>
 
         <div class="container-fluid bg-light">
-            <div class="row" style="padding-top:57px">
+            <div class="row" style="padding-top:65px">
                 <div class="p-3 pb-5 bg-white position-fixed overflow-auto" style="line-height: 1; height:100%; width:17%;">
                     <ul class="list-unstyled ps-0">
-                        <li class="btn-toggle-nav mb-1"><a class="nav-link text-dark rounded"><i class="fa fa-fw fa-home"></i>&thinsp;Home</a></li>
+                        <li class="btn-toggle-nav mb-1"><a asp-controller="Home" asp-action="Index" class="nav-link text-dark rounded"><i class="fa fa-fw fa-home"></i>&thinsp;Home</a></li>
                         <li class="btn-toggle-nav mb-1"><a class="nav-link text-dark rounded"><i class="fa fa-fw fa-user"></i>&thinsp;Attend By Face</a></li>
                         <li class="btn-toggle-nav mb-1"><a class="nav-link text-dark rounded"><i class="fa fa-fw fa-qrcode"></i>&thinsp;Show QR</a></li>
                         <li class="btn-toggle-nav mb-1"><a asp-controller="Department" asp-action="Index" class="nav-link text-dark rounded"><i class="fa fa-fw fa-building"></i>&thinsp;Departments</a></li>

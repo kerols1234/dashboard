@@ -15,7 +15,7 @@ function loadDataTable() {
             "smart": true
         },
         "columns": [
-            { "data": "userName", "width": "20%" },
+            { "data": "name", "width": "20%" },
             { "data": "employeeName", "width": "20%" },
             { "data": "phoneNumber", "width": "20%" },
             { "data": "email", "width": "20%" },
