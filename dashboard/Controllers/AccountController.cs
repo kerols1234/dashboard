@@ -109,24 +109,21 @@ namespace dashboard.Controllers
 
 
         [HttpGet]
-        public IActionResult Login(string returnurl = null)
+        public IActionResult Login()
         {
-            ViewData["ReturnUrl"] = returnurl;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginVM model, string returnurl = null)
+        public async Task<IActionResult> Login(LoginVM model)
         {
-            ViewData["ReturnUrl"] = returnurl;
-            returnurl = returnurl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
                 {
-                    return LocalRedirect(returnurl);
+                    return Redirect(nameof(HomeController.Index));
                 }
                 else
                 {
@@ -143,7 +140,7 @@ namespace dashboard.Controllers
         public async Task<IActionResult> LogOff()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            return RedirectToAction(nameof(AccountController.Login), nameof(AccountController));
         }
 
         private void AddErrors(IdentityResult result)
@@ -158,7 +155,17 @@ namespace dashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            return Json(new { data = await _db.applicationUsers.ToListAsync() });
+            return Json(new
+            {
+                data = await _db.applicationUsers.Select(obj => new UpsertVM()
+                {
+                    Id = obj.Id,
+                    Email = obj.Email,
+                    EmployeeName = obj.EmployeeName,
+                    Name = obj.UserName,
+                    PhoneNumber = obj.PhoneNumber
+                }).ToListAsync()
+            });
         }
 
         [HttpGet]
@@ -166,7 +173,17 @@ namespace dashboard.Controllers
         {
             if (ModelState.IsValid && id != null)
             {
-                return Json(new { data = await _db.applicationUsers.FirstOrDefaultAsync(obj => obj.Id == id) });
+                return Json(new
+                {
+                    data = await _db.applicationUsers.Select(obj => new UpsertVM()
+                    {
+                        Id = obj.Id,
+                        Email = obj.Email,
+                        EmployeeName = obj.EmployeeName,
+                        Name = obj.UserName,
+                        PhoneNumber = obj.PhoneNumber
+                    }).FirstOrDefaultAsync(obj => obj.Id == id)
+                });
             }
             return Json(new { success = false, message = "Error while get data" });
         }
@@ -174,36 +191,41 @@ namespace dashboard.Controllers
         [HttpPost]
         public async Task<IActionResult> Update([FromBody] UpsertVM model)
         {
-            var user = new ApplicationUser
+            if (ModelState.IsValid && model.Id != "" && model.Id != null)
             {
-                UserName = model.Name,
-                Email = model.Email,
-                EmployeeName = model.EmployeeName,
-                PhoneNumber = model.PhoneNumber,
-            };
+                var user = new ApplicationUser
+                {
+                    UserName = model.Name,
+                    Email = model.Email,
+                    EmployeeName = model.EmployeeName,
+                    PhoneNumber = model.PhoneNumber,
+                };
 
-            var oldUser = await _userManager.FindByIdAsync(model.Id) as ApplicationUser;
-            if (oldUser == null)
-            {
-                return Json(new { success = false, message = "Error while updating" });
-            }
+                var oldUser = await _userManager.FindByIdAsync(model.Id) as ApplicationUser;
+                if (oldUser == null)
+                {
+                    return Json(new { success = false, message = "No user with this id" });
+                }
 
-            var code = await _userManager.GeneratePasswordResetTokenAsync(oldUser);
-            var result = await _userManager.ResetPasswordAsync(oldUser, code, model.Password);
+                var code = await _userManager.GeneratePasswordResetTokenAsync(oldUser);
+                var result = await _userManager.ResetPasswordAsync(oldUser, code, model.Password);
 
-            if (!result.Succeeded)
-            {
-                return Json(new { success = false, message = "Error while updating" });
-            }
-            oldUser.Email = model.Email;
-            oldUser.UserName = model.Name;
-            oldUser.PhoneNumber = model.PhoneNumber;
-            oldUser.EmployeeName = model.EmployeeName;
-            result = await _userManager.UpdateAsync(oldUser);
+                if (!result.Succeeded)
+                {
+                    return Json(new { success = false, message = "Error while updating" });
+                }
+                oldUser.Email = model.Email;
+                oldUser.UserName = model.Name;
+                oldUser.PhoneNumber = model.PhoneNumber;
+                oldUser.EmployeeName = model.EmployeeName;
+                result = await _userManager.UpdateAsync(oldUser);
 
-            if (result.Succeeded)
-            {
-                return Json(new { success = true, message = "update successfull" });
+                if (result.Succeeded)
+                {
+                    return Json(new { success = true, message = "update successfull" });
+                }
+
+                return Json(new { success = false, message = result.Errors.ElementAt(0).Description });
             }
             return Json(new { success = false, message = "Error while updating" });
         }
@@ -227,6 +249,7 @@ namespace dashboard.Controllers
                 {
                     return Json(new { success = true, message = "insert successfull" });
                 }
+                return Json(new { success = false, message = result.Errors.ElementAt(0).Description });
             }
 
             return Json(new { success = false, message = "Error while adding" });
@@ -238,7 +261,7 @@ namespace dashboard.Controllers
             var user = await _db.applicationUsers.FirstOrDefaultAsync(obj => obj.Id == id);
             if (user == null)
             {
-                return Json(new { success = false, message = "Error while deleting" });
+                return Json(new { success = false, message = "No user with this id" });
             }
             var result = await _userManager.DeleteAsync(user);
             if (result.Succeeded)

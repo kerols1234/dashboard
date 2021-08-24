@@ -435,3 +435,4 @@ G:\dashboard\dashboard\obj\Debug\net5.0\Razor\Views\Account\Upsert.cshtml.g.cs
 G:\dashboard\dashboard\obj\Debug\net5.0\Razor\Views\Department\Index.cshtml.g.cs
 G:\dashboard\dashboard\obj\Debug\net5.0\Razor\Views\Employee\Index.cshtml.g.cs
 G:\dashboard\dashboard\obj\Debug\net5.0\Razor\Views\Employee\Upsert.cshtml.g.cs
+G:\dashboard\dashboard\obj\Debug\net5.0\Razor\Views\Account\Login.cshtml.g.cs
