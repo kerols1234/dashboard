@@ -1,6 +1,8 @@
 ﻿using dashboard.Data;
 using dashboard.Models;
 using dashboard.Models.ViewModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -79,13 +81,16 @@ namespace dashboard.Controllers
         }
 
         #region API Calls
+
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAll()
         {
             return Json(new { data = await _db.employees.Include(c => c.Department).ToListAsync() });
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetById(int id)
         {
             if (ModelState.IsValid)
@@ -96,6 +101,7 @@ namespace dashboard.Controllers
         }
 
         [HttpPut]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult Update([FromBody] Employee model)
         {
             if (ModelState.IsValid)
@@ -124,6 +130,7 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IActionResult Insert([FromBody] Employee model)
         {
             if (ModelState.IsValid && model.Id == 0)
@@ -136,6 +143,7 @@ namespace dashboard.Controllers
         }
 
         [HttpDelete]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _db.employees.FirstOrDefaultAsync(obj => obj.Id == id);

@@ -1,5 +1,7 @@
 ﻿using dashboard.Data;
 using dashboard.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -52,13 +54,18 @@ namespace dashboard.Controllers
         }
 
         #region API Calls
+
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
         public async Task<IActionResult> GetAll()
         {
             return Json(new { data = await _db.departments.ToListAsync() });
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
         public async Task<IActionResult> GetById(int id)
         {
             if(ModelState.IsValid)
@@ -69,6 +76,8 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
         public async Task<IActionResult> Update([FromBody] Department model)
         {
             if(ModelState.IsValid)
@@ -87,6 +96,8 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
         public async Task<IActionResult> Insert([FromBody] Department model)
         {
             if(ModelState.IsValid && model.Id == 0)
@@ -99,6 +110,8 @@ namespace dashboard.Controllers
         }
 
         [HttpDelete]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
         public async Task<IActionResult> Delete(int id)
         {
             var department = await _db.departments.FirstOrDefaultAsync(obj => obj.Id == id);

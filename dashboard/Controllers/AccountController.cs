@@ -1,28 +1,37 @@
 ﻿using dashboard.Data;
 using dashboard.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using WebApplicationIdentity.Models;
 
 namespace dashboard.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ApplicationDbContext _db;
+        private readonly IConfiguration _config;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext db)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext db, IConfiguration config)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _db = db;
+            _config = config;
         }
 
         public IActionResult Index()
@@ -109,12 +118,14 @@ namespace dashboard.Controllers
 
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginVM model)
         {
@@ -123,7 +134,7 @@ namespace dashboard.Controllers
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction(nameof(HomeController.Index),"Home");
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
                 }
                 else
                 {
@@ -151,7 +162,39 @@ namespace dashboard.Controllers
         }
 
         #region API Calls
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> LoginWithJWT([FromBody] LoginVM login)
+        {
+            IActionResult response = Unauthorized();
+            var user = await _userManager.FindByNameAsync(login.UserName);
+            if (user != null && await _userManager.CheckPasswordAsync(user, login.Password))
+            {
+
+                var token = GenerateJSONWebToken();
+                response = Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token), expiration = token.ValidTo });
+            }
+
+            return response;
+        }
+
+        private JwtSecurityToken GenerateJSONWebToken()
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(_config["Jwt:Issuer"],
+              _config["Jwt:Issuer"],
+              null,
+              expires: DateTime.Now.AddMinutes(120),
+              signingCredentials: credentials);
+
+            return token;
+        }
+
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAll()
         {
             return Json(new
@@ -168,6 +211,7 @@ namespace dashboard.Controllers
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetById(string id)
         {
             if (ModelState.IsValid && id != null)
@@ -188,6 +232,7 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Update([FromBody] UpsertVM model)
         {
             if (ModelState.IsValid && model.Id != "" && model.Id != null)
@@ -230,6 +275,7 @@ namespace dashboard.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Insert([FromBody] UpsertVM model)
         {
             if (ModelState.IsValid && (model.Id == "" || model.Id == null))
@@ -251,7 +297,7 @@ namespace dashboard.Controllers
                 return Json(new { success = false, message = result.Errors.ElementAt(0).Description });
             }
 
-            return Json(new { success = false, message = "Error while adding" });
+            return Json(new { success = false, message = "Error while adding", token = "" });
         }
 
         [HttpDelete]
