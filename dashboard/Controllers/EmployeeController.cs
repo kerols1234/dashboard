@@ -3,6 +3,7 @@ using dashboard.Models;
 using dashboard.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,8 @@ using System.Threading.Tasks;
 
 namespace dashboard.Controllers
 {
+    [Authorize]
+    [EnableCors]
     public class EmployeeController : Controller
     {
         private readonly ApplicationDbContext _db;
@@ -83,7 +86,7 @@ namespace dashboard.Controllers
         #region API Calls
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAll()
         {
             return Json(new { data = await _db.employees.Include(c => c.Department).ToListAsync() });
@@ -143,7 +146,7 @@ namespace dashboard.Controllers
         }
 
         [HttpDelete]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _db.employees.FirstOrDefaultAsync(obj => obj.Id == id);

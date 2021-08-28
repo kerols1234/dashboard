@@ -1,7 +1,9 @@
 ﻿using dashboard.Data;
 using dashboard.Models;
+using dashboard.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,6 +21,7 @@ using WebApplicationIdentity.Models;
 namespace dashboard.Controllers
 {
     [Authorize]
+    [EnableCors]
     public class AccountController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -43,6 +46,11 @@ namespace dashboard.Controllers
         public async Task<IActionResult> Upsert(string id)
         {
             UpsertVM registerViewModel = new UpsertVM();
+            registerViewModel.UserSelectList = _db.employees.Select(i => new SelectListItem
+            {
+                Text = i.EnglishName,
+                Value = i.EnglishName
+            });
             if (id != null)
             {
                 var user = await _db.applicationUsers.FirstOrDefaultAsync(obj => obj.Id == id);
@@ -51,11 +59,6 @@ namespace dashboard.Controllers
                 registerViewModel.Name = user.UserName;
                 registerViewModel.Email = user.Email;
                 registerViewModel.EmployeeName = user.EmployeeName;
-                registerViewModel.UserSelectList = _db.employees.Select(i => new SelectListItem
-                {
-                    Text = i.EnglishName,
-                    Value = i.EnglishName
-                });
                 registerViewModel.PhoneNumber = user.PhoneNumber;
 
             }
@@ -153,6 +156,36 @@ namespace dashboard.Controllers
             return RedirectToAction(nameof(AccountController.Login), "Account");
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordVM model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _userManager.FindByEmailAsync(model.Email);
+                if (result != null)
+                {
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return View(model);
+                }
+            }
+
+            return View(model);
+        }
+
+
         private void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)
@@ -194,7 +227,7 @@ namespace dashboard.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAll()
         {
             return Json(new
@@ -301,6 +334,7 @@ namespace dashboard.Controllers
         }
 
         [HttpDelete]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(string id)
         {
             var user = await _db.applicationUsers.FirstOrDefaultAsync(obj => obj.Id == id);
