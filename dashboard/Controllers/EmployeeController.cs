@@ -86,8 +86,14 @@ namespace dashboard.Controllers
         #region API Calls
 
         [HttpGet]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAll()
+        {
+            return Json(new { data = await _db.employees.Include(c => c.Department).ToListAsync() });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllEmployees()
         {
             return Json(new { data = await _db.employees.Include(c => c.Department).ToListAsync() });
         }
@@ -146,8 +152,21 @@ namespace dashboard.Controllers
         }
 
         [HttpDelete]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(int id)
+        {
+            var user = await _db.employees.FirstOrDefaultAsync(obj => obj.Id == id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "Error while deleting" });
+            }
+            _db.employees.Remove(user);
+            _db.SaveChanges();
+            return Json(new { success = true, message = "Delete successfull" });
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteEmployee(int id)
         {
             var user = await _db.employees.FirstOrDefaultAsync(obj => obj.Id == id);
             if (user == null)

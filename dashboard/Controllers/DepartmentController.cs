@@ -59,11 +59,18 @@ namespace dashboard.Controllers
         #region API Calls
 
         [HttpGet]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAll()
         {
             return Json(new { data = await _db.departments.ToListAsync() });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllDepartments()
+        {
+            return Json(new { data = await _db.departments.ToListAsync() });
+        }
+
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -109,7 +116,7 @@ namespace dashboard.Controllers
         }
 
         [HttpDelete]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(int id)
         {
             var department = await _db.departments.FirstOrDefaultAsync(obj => obj.Id == id);
@@ -121,6 +128,20 @@ namespace dashboard.Controllers
             _db.SaveChanges();
             return Json(new { success = true, message = "Delete successfull" });
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteDepartment(int id)
+        {
+            var department = await _db.departments.FirstOrDefaultAsync(obj => obj.Id == id);
+            if (department == null)
+            {
+                return Json(new { success = false, message = "Error while deleting" });
+            }
+            _db.departments.Remove(department);
+            _db.SaveChanges();
+            return Json(new { success = true, message = "Delete successfull" });
+        }
+
         #endregion
     }
 }

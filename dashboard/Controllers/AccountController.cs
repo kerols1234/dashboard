@@ -227,8 +227,24 @@ namespace dashboard.Controllers
         }
 
         [HttpGet]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAll()
+        {
+            return Json(new
+            {
+                data = await _db.applicationUsers.Select(obj => new UpsertVM()
+                {
+                    Id = obj.Id,
+                    Email = obj.Email,
+                    EmployeeName = obj.EmployeeName,
+                    Name = obj.UserName,
+                    PhoneNumber = obj.PhoneNumber
+                }).ToListAsync()
+            });
+        }
+       
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
         {
             return Json(new
             {
@@ -334,7 +350,7 @@ namespace dashboard.Controllers
         }
 
         [HttpDelete]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(string id)
         {
             var user = await _db.applicationUsers.FirstOrDefaultAsync(obj => obj.Id == id);
@@ -349,6 +365,24 @@ namespace dashboard.Controllers
             }
             return Json(new { success = false, message = "Error while deleting" });
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var user = await _db.applicationUsers.FirstOrDefaultAsync(obj => obj.Id == id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "No user with this id" });
+            }
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                return Json(new { success = true, message = "Delete successfull" });
+            }
+            return Json(new { success = false, message = "Error while deleting" });
+        }
+
+
         #endregion
     }
 }

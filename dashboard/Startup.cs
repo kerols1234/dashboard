@@ -1,4 +1,5 @@
 using dashboard.Data;
+using dashboard.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -39,6 +40,7 @@ namespace dashboard
                     .AllowAnyHeader()
                     );
             });
+            services.AddTransient<SampleData>();
             services.AddDbContext<ApplicationDbContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
             services.AddControllersWithViews();
@@ -60,7 +62,7 @@ namespace dashboard
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SampleData seeder)
         {
             if (env.IsDevelopment())
             {
@@ -80,6 +82,8 @@ namespace dashboard
             app.UseAuthentication();
             app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseAuthorization();
+
+            seeder.Initialize();
 
             app.UseEndpoints(endpoints =>
             {
